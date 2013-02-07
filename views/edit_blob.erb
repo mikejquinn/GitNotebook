@@ -1,0 +1,16 @@
+<h1><%= realm.name %></h1>
+
+<h2><%= repo_name %></h2>
+
+<div class="file-block">
+  <h3><%= blob.name %></h3>
+  <div class="content-wrapper">
+    <form class="edit-file-form" action="<%= save_url %>" method="POST">
+      <textarea name="text"><%= blob.data %></textarea>
+      <div class="controls">
+        <input class="button" type="submit" value="Save" />
+        <a class="cancel" href="<%= url("/#{realm.name}/#{repo_name}") %>">cancel</a>
+      </div>
+    </form>
+  </div>
+</form>

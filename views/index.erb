@@ -1,0 +1,12 @@
+<h1>Git Editor</h1>
+
+<% if realms.empty? %>
+  <p>There are no realms.</p>
+<% else %>
+  <ul>
+    <% realms.each do |realm| %>
+      <li><a href="<%= realm_path(realm) %>"><%= realm.name %></a></li>
+    <% end %>
+  </ul>
+<% end %>
+

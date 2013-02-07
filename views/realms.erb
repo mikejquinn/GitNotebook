@@ -1,0 +1,21 @@
+<h1><%= realm.name %></h1>
+
+<% if realm.repos.empty? %>
+  <p>No repos found.</p>
+<% else %>
+  <ul class="repo-list">
+    <% realm.repos.each do |repo| %>
+      <li>
+      <a href="<%= url("/#{realm.name}/#{repo_name(realm.name, repo)}") %>">
+        <%= repo_name(realm.name, repo) %>
+      </a>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<form action="<%= url("/#{realm.name}/create_repo") %>" method="POST">
+  <input type="text" name="name" />
+  <input type="submit" value="Create"></input>
+</form>
+
