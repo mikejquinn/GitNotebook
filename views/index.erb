@@ -1,12 +1,18 @@
 <h1>Git Editor</h1>
 
 <% if realms.empty? %>
-  <p>There are no realms.</p>
+  <p>There are no git repo collections. Create one below.</p>
 <% else %>
-  <ul>
+  <p>The following git repos collections were found:</p>
+  <ul class="styled-select-list">
     <% realms.each do |realm| %>
-      <li><a href="<%= realm_path(realm) %>"><%= realm.name %></a></li>
+      <li><a href="<%= realm_path(realm) %>"><%= realm.id %></a></li>
     <% end %>
   </ul>
 <% end %>
+
+<form action="<%= new_realm_path %>" method="POST">
+  <input type="text" name="name" />
+  <input class="button" type="submit" value="Create"></input>
+</form>
 

@@ -1,53 +1,19 @@
 @import "bourbon";
-
-$hpadding: 5px;
-$vpadding: 5px;
-$padding: $vpadding $hpadding;
-$vmargin: 5px;
-$vmargin-large: 15px;
-
-body {
-  background-color: white;
-  font-size: 16px;
-  border: 0;
-  margin: 0;
-  padding: $vpadding $hpadding;
-  font-family: Helvetica Neue, Helvetica, Sans Serif;
-}
-
-h1, h2, h3, h4, h5 {
-  font-size: 16px;
-  border: 0;
-  margin: $vmargin 0;
-}
-
-#content {
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.button {
-  @include button;
-}
-
-h1 {
-  font-size: 25px;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-}
+@import "common";
 
 .file-block {
   border: solid 1px #999;
   margin-bottom: $vmargin-large;
-  h3 {
+  h3, .header {
+    @include clearfix;
     margin: 0;
     font-size: 18px;
     border-bottom: solid 1px #999;
     padding: $padding;
+    .delete-button {
+      @include button(pill, #eee);
+      float: right;
+    }
     .file-controls {
       float: right;
       li {
@@ -66,6 +32,7 @@ ul {
       background-color: white;
       border: solid 1px #aaa;
       padding: $padding;
+      min-height: 150px;
     }
     .controls {
       @include clearfix;
@@ -82,16 +49,16 @@ ul {
   }
 }
 
-.edit-file-form {
+.edit-repo-form {
   width: 100%;
   margin: 0;
   textarea {
     width: 100%;
-    height: 50px;
+    min-height: 150px;
+    max-height: 350px;
     margin-bottom: $vmargin;
   }
 }
-
 
 .repo-controls {
   margin-top: $vmargin;

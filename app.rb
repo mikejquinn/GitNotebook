@@ -8,6 +8,7 @@ require "bourbon"
 
 require "./environment"
 require "./lib/realm"
+require "./lib/repo"
 
 class GloGist < Sinatra::Base
 
@@ -29,28 +30,85 @@ class GloGist < Sinatra::Base
 
   helpers Pinion::SinatraHelpers
 
+  get "/favicon.ico" do
+    ""
+  end
+
   get "/" do
     erb :index, locals: { realms: Realm.load_all }
   end
 
-  get "/:realm" do |realm|
-    erb :realms, locals: { realm: Realm.new(realm) }
+  post "/create_realm" do
+    @realm = Realm.find_or_create(params["name"])
+    redirect realm_path
   end
 
-  get "/:realm_name/:repo_name" do |realm_name, repo_name|
-    realm = Realm.new(realm_name)
-    repo = realm.get_repo(repo_name)
-    head = repo.get_head("master")
-    blobs = head.commit.tree.blobs
-    erb :repo, locals: {
-      realm: realm,
-      repo: repo,
-      repo_name: repo_name,
-      branch: "master",
-      blobs: blobs,
-      new_file_path: url("/#{realm_name}/#{repo_name}/new_file")
-    }
+  get "/:realm_id" do |realm_id|
+    @realm = Realm.new(realm_id)
+    erb :realms
   end
+
+  get "/:realm_id/:repo_id" do |realm_id, repo_id|
+    @realm = Realm.new(realm_id)
+    @repo = realm.get_repo(repo_id)
+    blobs = @repo.blobs_for_committish("master")
+    erb :repo, locals: { blobs: blobs }
+  end
+
+  post "/:realm_name/create_repo" do |realm_name|
+    @realm = Realm.new(realm_name)
+    repo_name = params["name"]
+    @repo = @realm.create_repo(repo_name)
+    index = Grit::Index.new(@repo.grit)
+    index.add("textfile1", "")
+    index.commit("Created Notebook")
+    redirect repo_path
+  end
+
+  post "/:realm_id/:repo_id" do |realm_id, repo_id|
+    data = JSON.parse(request.body.read)
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    index = @repo.index
+    data["files"].each do |file|
+      index.add(file["name"], file["text"])
+    end
+    data["deleted_paths"].each do |path|
+      index.delete(path)
+    end
+    index.commit("message", [@repo.head.commit], nil, nil, "master")
+    "OK"
+  end
+
+  get "/:realm_id/:repo_id/edit" do |realm_id, repo_id|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    blobs = @repo.blobs_for_committish("master")
+    erb :repo_edit, locals: { blobs: blobs }
+  end
+
+  get "/:realm_id/:repo_id/edit/new_file" do |realm_id, repo_id|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    erb :repo_edit_new_blob, layout: false, locals: { name: @repo.generate_file_name }
+  end
+
+  get "/:realm_id/:repo_id/direct/:commit_id/:blob_name" do |realm_id, repo_id, commit_id, blob_name|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    blob = @repo.find_blob_for_committish(commit_id, blob_name)
+    content_type :text
+    blob.data
+  end
+
+  get "/:realm_id/:repo_id/:commit_id/:blob_name" do |realm_id, repo_id, commit_id, blob_name|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    blob = @repo.find_blob_for_committish(commit_id, blob_name)
+    content_type :text
+    blob.data
+  end
+
 
   get "/:realm_name/:repo_name/new_file" do |realm_name, repo_name|
     realm = Realm.new(realm_name)
@@ -77,23 +135,6 @@ class GloGist < Sinatra::Base
     redirect url("/#{realm_name}/#{repo_name}")
   end
 
-  get "/:realm/:repo_name/:branch/:blob/edit" do |realm_name, repo_name, branch, blob_name|
-    realm = Realm.new(realm_name)
-    repo = realm.get_repo(repo_name)
-    head = repo.get_head(branch)
-    blob = head.commit.tree.blobs.select { |b| b.name == blob_name }.first
-    save_url = url("/#{realm_name}/#{repo_name}/#{branch}/#{blob_name}")
-    erb :edit_blob, locals: { blob: blob, save_url: save_url, realm: realm, repo_name: repo_name }
-  end
-
-  get "/:realm_name/:repo_name/:blob/direct" do |realm_name, repo_name, blob_id|
-    realm = Realm.new(realm_name)
-    repo = realm.get_repo(repo_name)
-    blob = repo.blob(blob_id)
-    content_type :text
-    blob.data
-  end
-
   post "/:realm_name/:repo_name/:branch/:blob" do |realm_name, repo_name, branch_name, blob_name|
     realm = Realm.new(realm_name)
     repo = realm.get_repo(repo_name)
@@ -105,19 +146,56 @@ class GloGist < Sinatra::Base
     redirect url("/#{realm_name}/#{repo_name}")
   end
 
-  post "/:realm_name/create_repo" do |realm_name|
-    realm = Realm.new(realm_name)
-    repo_name = params["name"]
-    repo = realm.create_repo(repo_name)
-    index = Grit::Index.new(repo)
-    index.add("main", "Hello World")
-    index.commit("Initial Commit")
-    redirect url("/#{realm_name}/#{repo_name}")
-  end
-
   helpers do
-    def realm_path(realm)
-      url("/#{realm.name}")
+    def realm
+      @realm
+    end
+
+    def repo
+      @repo
+    end
+
+    def commit
+      @commit ||= repo.committish("master")
+    end
+
+    def raw_blob_path(blob)
+      url("#{realm.id}/#{repo.id}/direct/#{commit.id}/#{blob.name}")
+    end
+
+    def realms_path
+      url("/")
+    end
+
+    def new_realm_path
+      url("/create_realm")
+    end
+
+    def repo_path
+      url("#{realm.id}/#{repo.id}")
+    end
+
+    def edit_repo_path
+      url("#{realm.id}/#{repo.id}/edit")
+    end
+
+    def new_file_path
+      "#{edit_repo_path}/new_file"
+    end
+
+    def realm_path(realm = nil)
+      realm = @realm if realm.nil?
+      url("/#{realm.id}")
+    end
+
+    def repo_path(repo = nil)
+      repo = @repo if repo.nil?
+      url("/#{repo.realm.id}/#{repo.id}")
+    end
+
+    def new_repo_path(realm = nil)
+      realm = @realm if realm.nil?
+      "#{realm_path(realm)}/create_repo"
     end
 
     def repo_name(realm_name, repo)

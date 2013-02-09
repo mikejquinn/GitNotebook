@@ -1,0 +1,117 @@
+$hpadding: 5px;
+$vpadding: 5px;
+$hpadding-big: 15px;
+$vpadding-big: 15px;
+$padding: $vpadding $hpadding;
+$hmargin: 5px;
+$vmargin: 5px;
+$vmargin-large: 15px;
+
+body {
+  background-color: white;
+  font-size: 16px;
+  border: 0;
+  margin: 0;
+  padding: $vpadding $hpadding;
+  font-family: Helvetica Neue, Helvetica, Sans Serif;
+}
+
+h1, h2, h3, h4, h5 {
+  font-size: 16px;
+  border: 0;
+  margin: $vmargin 0;
+}
+
+input, textarea {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+}
+li {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#content {
+  position: relative;
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.button {
+  @include button;
+}
+.button-light {
+  @include button(simple, #eee);
+}
+
+h1 {
+  font-size: 25px;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+#top-controls {
+  position: absolute;
+  right: 0;
+  top: $vpadding;
+  li {
+    float: right;
+  }
+}
+
+#bottom-controls {
+  height: 33px;
+  margin: $vmargin 0;
+  position: relative;
+  ul.right {
+    position: absolute;
+    right: 0;
+    li {
+      float: right;
+      margin-left: $hmargin;
+    }
+  }
+  ul.left {
+    position: absolute;
+    left: 0;
+    li { float: left; }
+  }
+}
+
+ul.styled-select-list {
+  li {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    a {
+      @include linear-gradient(#eee, #ccc);
+      border-top: solid 1px #ddd;
+      border-right: solid 1px #ddd;
+      border-left: solid 1px #ddd;
+      border-bottom: solid 1px #b8b8b8;
+      padding: $vpadding $hpadding-big;
+      display: block;
+      color: #777;
+      text-decoration: none;
+      text-shadow: 0px 1px white;
+      &:hover {
+        @include linear-gradient(#8ebcf1, darken(#8ebcf1, 10%));
+        color: white;
+        text-shadow: 0px 1px darken(#8ebcf1, 40%);
+        border-top: solid 1px darken(#8ebcf1, 5%);
+        border-right: solid 1px darken(#8ebcf1, 5%);
+        border-left: solid 1px darken(#8ebcf1, 5%);
+        border-bottom: solid 1px darken(#8ebcf1, 15%);
+      }
+    }
+  }
+}

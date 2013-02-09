@@ -1,26 +1,24 @@
-<h1><%= realm.name %></h1>
+<h1><%= realm.id %></h1>
 
-<h2><%= repo_name(realm.name, repo) %></h2>
+<h2><%= repo.id %></h2>
+
+<p><a href="<%= realm_path %>">&lt;&lt; Back to repo list</a></p>
+
+<ul id="top-controls">
+  <li><a class="button" href="<%= edit_repo_path %>">Edit</a></li>
+</ul>
 
 <% blobs.each do |blob| %>
-
   <div class="file-block">
     <h3>
     <%= blob.name %>
     <ul class="file-controls">
-      <li><a href="<%= url("/#{realm.name}/#{repo_name}/#{blob.id}/direct") %>">direct link</a></li>
+      <li><a href="<%= raw_blob_path(blob) %>">direct link</a></li>
     </ul>
     </h3>
     <div class="content-wrapper">
       <pre class="file-contents"><%= blob.data %></pre>
-      <div class="controls">
-        <a href="<%= url("/#{realm.name}/#{repo_name}/#{branch}/#{blob.name}/edit") %>" class="button">edit</a>
-      </div>
     </div>
   </div>
-
 <% end %>
 
-<div class="repo-controls">
-  <a href="<%= new_file_path %>" class="button">Add File</a>
-</div>

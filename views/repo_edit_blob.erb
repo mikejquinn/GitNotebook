@@ -1,0 +1,10 @@
+<div class="file-block" data-blob-id="<%= blob.id %>" data-blob-name="<%= blob.name %>">
+  <div class="header">
+    <input type="text" name="name" placeholder="Name this file" value="<%= blob.name %>" />
+    <span class="delete-button">X</span>
+  </div>
+  <div class="content-wrapper">
+    <textarea name="text"><%= blob.data %></textarea>
+  </div>
+</div>
+

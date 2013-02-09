@@ -11,6 +11,7 @@ gem "pinion"
 gem "uglifier"
 gem "sass"
 gem "bourbon"
+gem "coffee-script"
 
 group :development do
   gem "awesome_print"
