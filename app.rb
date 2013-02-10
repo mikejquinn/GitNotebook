@@ -51,6 +51,7 @@ class GloGist < Sinatra::Base
   get "/:realm_id/:repo_id" do |realm_id, repo_id|
     @realm = Realm.new(realm_id)
     @repo = realm.get_repo(repo_id)
+    @commit = @repo.committish("master")
     blobs = @repo.blobs_for_committish("master")
     erb :repo, locals: { blobs: blobs }
   end
@@ -87,10 +88,33 @@ class GloGist < Sinatra::Base
     erb :repo_edit, locals: { blobs: blobs }
   end
 
+  get "/:realm_id/:repo_id/versions" do |realm_id, repo_id|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    commits = @repo.grit.commits("master", 15)
+    erb :repo_versions, locals: { commits: commits }
+  end
+
+  get "/:realm_id/:repo_id/:commit" do |realm_id, repo_id, commit|
+    @realm = Realm.new(realm_id)
+    @repo = realm.get_repo(repo_id)
+    @commit = @repo.committish(commit)
+    blobs = @repo.blobs_for_committish(commit)
+    erb :repo, locals: { blobs: blobs }
+  end
+
   get "/:realm_id/:repo_id/edit/new_file" do |realm_id, repo_id|
     @realm = Realm.new(realm_id)
     @repo = @realm.get_repo(repo_id)
     erb :repo_edit_new_blob, layout: false, locals: { name: @repo.generate_file_name }
+  end
+
+  get "/:realm_id/:repo_id/changes/:commit_id" do |realm_id, repo_id, commit_id|
+    @realm = Realm.new(realm_id)
+    @repo = @realm.get_repo(repo_id)
+    commit = @repo.committish(commit_id)
+    diffs = commit.diffs
+    erb :repo_changes, locals: { diffs: diffs, commit: commit }
   end
 
   get "/:realm_id/:repo_id/direct/:commit_id/:blob_name" do |realm_id, repo_id, commit_id, blob_name|
@@ -100,15 +124,6 @@ class GloGist < Sinatra::Base
     content_type :text
     blob.data
   end
-
-  get "/:realm_id/:repo_id/:commit_id/:blob_name" do |realm_id, repo_id, commit_id, blob_name|
-    @realm = Realm.new(realm_id)
-    @repo = @realm.get_repo(repo_id)
-    blob = @repo.find_blob_for_committish(commit_id, blob_name)
-    content_type :text
-    blob.data
-  end
-
 
   get "/:realm_name/:repo_name/new_file" do |realm_name, repo_name|
     realm = Realm.new(realm_name)
@@ -191,6 +206,20 @@ class GloGist < Sinatra::Base
     def repo_path(repo = nil)
       repo = @repo if repo.nil?
       url("/#{repo.realm.id}/#{repo.id}")
+    end
+
+    def commit_path(commit)
+      "#{repo_path}/#{commit.id}"
+    end
+
+    def revisions_path(repo = nil)
+      repo = @repo if repo.nil?
+      url("/#{repo.realm.id}/#{repo.id}/versions")
+    end
+
+    def commit_changes_path(commit = nil)
+      commit = @commit if commit.nil?
+      url("/#{@realm.id}/#{@repo.id}/changes/#{commit.id}")
     end
 
     def new_repo_path(realm = nil)

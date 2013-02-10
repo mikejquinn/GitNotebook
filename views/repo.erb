@@ -6,6 +6,8 @@
 
 <ul id="top-controls">
   <li><a class="button" href="<%= edit_repo_path %>">Edit</a></li>
+  <li><a class="button-light" href="<%= commit_changes_path %>">View Diff</a></li>
+  <li><a class="button-light" href="<%= revisions_path %>">View All Revisions</a></li>
 </ul>
 
 <% blobs.each do |blob| %>

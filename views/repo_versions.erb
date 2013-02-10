@@ -1,0 +1,16 @@
+<h1><%= realm.id %></h1>
+
+<h2><%= repo.id %></h2>
+
+<p><a href="<%= repo_path %>">&lt;&lt; Latest version</a></p>
+
+<% commits.each do |commit| %>
+  <ul class="revisions">
+    <li>
+      <div><%= commit.id %></div>
+      <div><%= commit.message %></div>
+      <div><a href="<%= commit_path(commit) %>">View Revision &gt;&gt;</a></div>
+    </li>
+  </ul>
+<% end %>
+
