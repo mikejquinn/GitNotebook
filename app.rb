@@ -235,6 +235,4 @@ class GloGist < Sinatra::Base
     def direct_path(realm, repo_name, file_name)
     end
   end
-
 end
-

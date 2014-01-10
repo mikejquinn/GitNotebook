@@ -7,4 +7,3 @@ end
 map "/" do
   run GloGist
 end
-
