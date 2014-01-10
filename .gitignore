@@ -1,3 +1,4 @@
 .*.swp
 /private
 /.sass-cache
+tmp/
