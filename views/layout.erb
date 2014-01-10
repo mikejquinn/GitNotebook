@@ -1,9 +1,9 @@
 <!DOCTYPE>
 <html>
 <head>
+  <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
   <%= css_url("main.css") %>
-  <%= js_url("vendor/jquery-1.9.0.js") %>
-  <%= js_url("vendor/livecss.js") %>
+
   <script>
     window._rootURL = "<%= url('/') %>";
   </script>
@@ -12,5 +12,10 @@
   <div id="content">
     <%= yield %>
   </div>
+
+  <%= js_url("vendor/jquery-1.9.0.js") %>
+  <%= js_url("vendor/livecss.js") %>
+  <script type="text/javascript" src="/bootstrap/js/bootstrap.js" />
+
 </body>
 </html>
