@@ -12,6 +12,9 @@ gem "uglifier"
 gem "sass"
 gem "bourbon"
 gem "coffee-script"
+gem "ruby-openid"
+gem "sequel"
+gem "mysql2"
 
 group :development do
   gem "awesome_print"

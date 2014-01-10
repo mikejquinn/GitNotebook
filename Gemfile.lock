@@ -34,6 +34,7 @@ GEM
     mocha (0.13.2)
       metaclass (~> 0.0.1)
     multi_json (1.5.0)
+    mysql2 (0.3.13)
     pinion (0.3.1)
       rack (~> 1.0)
     posix-spawn (0.3.6)
@@ -43,7 +44,9 @@ GEM
     rack-test (0.6.2)
       rack (>= 1.0)
     rake (10.0.3)
+    ruby-openid (2.3.0)
     sass (3.2.1)
+    sequel (4.5.0)
     shoulda-context (1.0.2)
     sinatra (1.3.4)
       rack (~> 1.4)
@@ -75,11 +78,14 @@ DEPENDENCIES
   grit
   json
   mocha
+  mysql2
   pinion
   rack
   rack-test
   rake (!= 0.9.0)
+  ruby-openid
   sass
+  sequel
   shoulda-context
   sinatra
   sinatra-contrib

@@ -6,13 +6,21 @@ require "pinion/sinatra_helpers"
 require "grit"
 require "bourbon"
 
+require "openid"
+require "openid/extensions/ax"
+require "openid/store/filesystem"
+
 require "./environment"
 require "./lib/realm"
 require "./lib/repo"
+require "./lib/db"
+require "./models/user"
 
 class GloGist < Sinatra::Base
 
   set :pinion, Pinion::Server.new("/assets")
+
+  enable :sessions
 
   configure do
     pinion.convert :scss => :css
@@ -29,6 +37,39 @@ class GloGist < Sinatra::Base
   end
 
   helpers Pinion::SinatraHelpers
+
+  UNAUTHENTICATED_ROUTES=["/favicon", "/signin/complete"]
+  OPENID_AX_EMAIL_EXTENSION="http://axschema.org/contact/email"
+
+  before do
+    next if UNAUTHENTICATED_ROUTES.any? { |route| request.path =~ (/^#{route}/) }
+
+    unless logged_in?
+      session[:initial_request_url] = request.url
+      redirect openid_login_redirect_url(OPEN_ID_LOGIN_URL)
+    end
+  end
+
+  get "/signin/complete" do
+    openid_consumer = OpenID::Consumer.new(session, openid_store)
+    openid_response = openid_consumer.complete(params, request.url)
+
+    case openid_response.status
+    when OpenID::Consumer::FAILURE then "Could not authenticate with #{openid_response.display_identifier}"
+    when OpenID::Consumer::SETUP_NEEDED then "Authentication failed - Setup Needed"
+    when OpenID::Consumer::CANCEL then "Login cancelled."
+    when OpenID::Consumer::SUCCESS
+      ax_resp = OpenID::AX::FetchResponse.from_success_response(openid_response)
+      email = ax_resp[OPENID_AX_EMAIL_EXTENSION][0]
+
+      unless user = User[email: email]
+        user = User.create(email: email)
+      end
+
+      session[:user_id] = user.id
+      redirect session[:initial_request_url] || "/"
+    end
+  end
 
   get "/favicon.ico" do
     ""
@@ -233,6 +274,41 @@ class GloGist < Sinatra::Base
     end
 
     def direct_path(realm, repo_name, file_name)
+    end
+  end
+
+  def current_user
+    @current_user ||= User[id: session[:user_id]]
+  end
+
+  def logged_in?
+    !!current_user
+  end
+
+  def openid_store
+    session_dir = File.join(File.dirname(__FILE__), "tmp", "openid")
+    FileUtils.mkdir_p(session_dir)
+    @openid_store ||= OpenID::Store::Filesystem.new(session_dir)
+  end
+
+  def openid_login_redirect_url(openid_endpoint_url)
+    consumer = OpenID::Consumer.new(session, openid_store)
+
+    begin
+      service = OpenID::OpenIDServiceEndpoint.from_op_endpoint_url(openid_endpoint_url)
+      oidreq = consumer.begin_without_discovery(service, false)
+    rescue OpenID::OpenIDError => e
+      $stderr.puts "Discovery failed for #{openid_endpoint_url}: #{e}"
+    else
+      ax_request = OpenID::AX::FetchRequest.new
+      # Information we require from the OpenID provider.
+      required_fields = [OPENID_AX_EMAIL_EXTENSION]
+      required_fields.each { |field| ax_request.add(OpenID::AX::AttrInfo.new(field, nil, true)) }
+      oidreq.add_extension(ax_request)
+
+      host = "#{request.scheme}://#{request.host_with_port}"
+      return_to = "#{host}/signin/complete"
+      oidreq.redirect_url(host, return_to)
     end
   end
 end
