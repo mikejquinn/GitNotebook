@@ -14,6 +14,7 @@ require "./environment"
 require "./lib/realm"
 require "./lib/repo"
 require "./lib/db"
+require "./lib/gravatar"
 require "./models/user"
 
 class GloGist < Sinatra::Base
@@ -40,6 +41,8 @@ class GloGist < Sinatra::Base
 
   UNAUTHENTICATED_ROUTES=["/favicon", "/signin/complete"]
   OPENID_AX_EMAIL_EXTENSION="http://axschema.org/contact/email"
+
+  include Gravatar::SinatraHelpers
 
   before do
     next if UNAUTHENTICATED_ROUTES.any? { |route| request.path =~ (/^#{route}/) }
@@ -203,6 +206,10 @@ class GloGist < Sinatra::Base
   end
 
   helpers do
+    def development?
+      ENV['RACK_ENV'].eql?("development")
+    end
+
     def realm
       @realm
     end

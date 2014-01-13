@@ -9,12 +9,21 @@
   </script>
 </head>
 <body>
+  <div id="header-bar">
+    <div class="content-wrapper">
+      <div id="user-info">
+        <%= gravatar_image_tag(current_user.email, 22) %>
+        <%= current_user.email %>
+      </div>
+    </div>
+  </div>
+
   <div id="content">
     <%= yield %>
   </div>
 
   <%= js_url("vendor/jquery-1.9.0.js") %>
-  <%= js_url("vendor/livecss.js") %>
+  <%= js_url("vendor/livecss.js") if ENV['RACK_ENV'].eql?("development") %>
   <script type="text/javascript" src="/bootstrap/js/bootstrap.js" />
 
 </body>
