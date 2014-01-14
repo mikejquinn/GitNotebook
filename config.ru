@@ -1,9 +1,9 @@
 require "./app"
 
-map GloGist.pinion.mount_point do
-  run GloGist.pinion
+map GitNotebook.pinion.mount_point do
+  run GitNotebook.pinion
 end
 
 map "/" do
-  run GloGist
+  run GitNotebook
 end

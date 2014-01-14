@@ -17,7 +17,7 @@ require "./lib/db"
 require "./lib/gravatar"
 require "./models/user"
 
-class GloGist < Sinatra::Base
+class GitNotebook < Sinatra::Base
 
   set :pinion, Pinion::Server.new("/assets")
 
