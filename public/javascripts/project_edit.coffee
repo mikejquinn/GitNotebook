@@ -1,6 +1,6 @@
-RepoEdit =
+ProjectEdit =
   init: ->
-    @form = $(".edit-repo-form")
+    @form = $(".edit-project-form")
     @form.submit =>
       this.submit()
       false
@@ -22,7 +22,7 @@ RepoEdit =
       html = $(html).hide()
       @bottomControlBox.before(html)
       html.fadeIn()
-      $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+      $("html, body").animate({ scrollTop: $(document).height() }, "slow")
     $.get(@newFilePath, addHTML, "html")
 
   submit: ->
@@ -41,7 +41,7 @@ RepoEdit =
         text: $this.find("textarea").val()
       }
     )).get()
-    data = { 
+    data = {
       files: files,
       deleted_paths: @deletedFiles,
       message: "Changed some files"
@@ -54,4 +54,4 @@ RepoEdit =
       success: (-> window.location = url)
       contentType: "application/json; charset=utf-8")
 
-$(document).ready(-> RepoEdit.init())
+$(document).ready(-> ProjectEdit.init())

@@ -1,0 +1,14 @@
+<h1><%= @project.name %></h1>
+
+<p><a href="<%= project_path(@project) %>">&lt;&lt; Latest version</a></p>
+
+<% commits.each do |commit| %>
+  <ul class="revisions">
+    <li>
+      <div><%= commit.id %></div>
+      <div><%= commit.message %></div>
+      <div><a href="<%= project_commit_path(project,commit) %>">View Revision &gt;&gt;</a></div>
+    </li>
+  </ul>
+<% end %>
+

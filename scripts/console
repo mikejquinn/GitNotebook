@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+$:.unshift(".")
+require "bundler/setup"
+require "lib/script_environment"
+
+require "irb"
+
+def reload!
+  paths = ["lib/*.rb", "models/*.rb"]
+  Utils.suppress_warnings do
+    paths.each do |path|
+      Dir.glob(path).each { |file| load(file) }
+    end
+  end
+  nil
+end
+
+$stdout.sync = true
+Logging.logger = Logger.new($stdout, Logger::INFO)
+
+IRB.start(__FILE__)

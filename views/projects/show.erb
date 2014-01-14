@@ -1,0 +1,24 @@
+<h1><%= @project.name %></h1>
+
+<p><a href="<%= projects_path %>">&lt;&lt; Back to project list</a></p>
+
+<ul id="top-controls">
+  <li><a class="button" href="<%= edit_project_path(@project) %>">Edit</a></li>
+  <li><a class="button-light" href="<%= project_commit_changes_path(@project, @commit) %>">View Diff</a></li>
+  <li><a class="button-light" href="<%= project_revisions_path(@project) %>">View All Revisions</a></li>
+</ul>
+
+<% blobs.each do |blob| %>
+  <div class="file-block">
+    <h3>
+    <%= blob.name %>
+    <ul class="file-controls">
+      <li><a href="<%= project_raw_blob_path(project, blob) %>">direct link</a></li>
+    </ul>
+    </h3>
+    <div class="file-content-wrapper">
+      <pre class="file-contents"><%= blob.data %></pre>
+    </div>
+  </div>
+<% end %>
+

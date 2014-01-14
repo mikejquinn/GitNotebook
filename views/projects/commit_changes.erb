@@ -1,8 +1,6 @@
-<h1><%= realm.id %></h1>
+<h1><%= @project.name %></h1>
 
-<h2><%= repo.id %></h2>
-
-<h3><%= commit.id %></h3>
+<h2><%= commit.id %></h2>
 
 <div class="diff">
   <% diffs.each do |diff| %>

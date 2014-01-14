@@ -1,0 +1,24 @@
+<h1><%= @project.name %></h1>
+
+<form class="edit-project-form"
+  action="<%= project_path(@project) %>"
+  data-new-file-path="<%= project_new_file_path(@project) %>"
+  method="POST">
+
+  <% blobs.each do |blob| %>
+    <%= erb :"projects/edit_blob", locals: { blob: blob } %>
+  <% end %>
+
+  <div id="bottom-controls">
+    <ul class="controls left">
+      <li><button class="button-light" id="add-file-button">Add Another File</button></li>
+    </ul>
+    <ul class="controls right">
+      <li><input class="button" type="submit" value="Save" /></li>
+      <li><a class="button-light cancel" href="<%= project_path(@project) %>">Cancel</a></li>
+    </ul>
+  </div>
+
+</form>
+
+<%= js_url("project_edit.js") %>

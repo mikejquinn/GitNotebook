@@ -1,21 +1,27 @@
 require "grit"
 class Repo
-  attr_reader :id
-  attr_reader :realm
+  # Splits the project's alphanumeric ID to distribute git repos into subfolders
+  def self.path_for_project(project)
+    string_id = project.string_id
+    File.join(REPO_ROOT, string_id[0,2], "#{string_id[2, string_id.length]}.git")
+  end
 
-  def self.create(realm, id)
-    path = "#{realm.path}/#{id}.git"
+  def self.create_for_project(project)
+    path = Repo.path_for_project(project)
+    FileUtils.mkdir_p(path)
     grit = Grit::Repo.init_bare(path)
-    new(realm, id)
+    new(project)
   end
 
-  def initialize(realm, id)
-    @realm = realm
-    @id = id
+  def self.delete_for_project(project)
   end
 
-  def grit
-    @grit ||= Grit::Repo.new(path)
+  attr_reader :project, :path, :grit
+
+  def initialize(project)
+    @project = project
+    @path = Repo.path_for_project(@project)
+    @grit = Grit::Repo.new(@path)
   end
 
   def index
@@ -60,9 +66,4 @@ class Repo
     end
     "file#{i}.txt"
   end
-
-  def path
-    File.join(realm.path, "#{@id}.git")
-  end
 end
-
